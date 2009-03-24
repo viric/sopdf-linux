@@ -1,0 +1,66 @@
+Quick and Dirty Linux port of soPdf
+<emit.sorrels@gmail.com> Emit on mobileread
+January 17, 2009
+-----------------------------------
+original win32 version is by 'theguru' on mobileread.com
+http://www.mobileread.com/forums/showthread.php?t=32066
+many thanks to him for releasing a very useful tool.
+
+Required libraries
+------------------
+libjpeg, zlib, freetype, fontconfig, expat
+all of these are probably installed by default on most distros.
+in ubuntu/debian, you can do:
+  sudo apt-get install libjpeg62 zlib1g libfreetype6 libfontconfig1 libexpat1
+you will also want the *-dev packages if you're compiling from scratch.
+
+Running:
+========
+my favorite:
+./sopdf -i blahblah.pdf -m 3
+
+for a discussion on possible conversion modes, see the forum thread.
+for possible parameters:
+./sopdf -h
+
+Compiling:
+==========
+I just got my PRS505 today and after searching around for linux
+based tools I found soPdf... well it was windows only so I 
+spent a few hours fiddling with it.
+
+there are many ways to port it, but it's almost 5am so I went for 
+the easiest, dirtiest way to do it. there are no nice configure
+scripts, no makefiles, etc. just a lot of typing gcc at the
+prompt...
+
+I assume some level of competence from the reader who's
+attempting to do this, so I won't waste my breath on details.
+
+I grabbed a clean un-windows'd fitz/mupdf source tree.
+You can get it from the original http://ccxvii.net/fitz/,
+but I'm more familiar with git than darc, so I just
+cloned the repo from http://github.com/kjk/mupdf/tree/master
+
+I diffed kjk's mupdf with sopdf's mupdf and basically found
+the only major mismatch was a new bbox field in fz_node.
+So I patched two files to reflect this change:
+  mupdf/world/node_misc1.c
+  mupdf/include/fitz/wld_tree.h
+
+Follow the README for fitz and build it.
+make sure to grab the optional packages jasper and jbig2dec
+(fitz/mupdf docs will explain)
+Jasper source: http://www.ece.uvic.ca/~mdadams/jasper/#download
+jbig2dec: http://jbig2dec.sourceforge.net/
+
+Once you have all the required dependencies set up, it's
+time to build soPdf itself.
+The soPdf.c and processPdf.c included in this archive
+are simply the original soPdf.cpp and processPdf.cpp 
+minus the win32 specific stuff.
+
+Link the *whole* beast, all object files, +also need 
+-lm -ljpeg `freetype-config --libs` `pkg-config fontconfig --libs`
+and you'll get an executable.
+
